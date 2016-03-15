@@ -31,6 +31,7 @@ import org.apache.cordova.PluginResult;
 public class WebIntent extends CordovaPlugin {
 
     private CallbackContext onNewIntentCallbackContext = null;
+	private Intent currentIntent = null;
 
     //public boolean execute(String action, JSONArray args, String callbackId) {
     @Override
@@ -85,7 +86,12 @@ public class WebIntent extends CordovaPlugin {
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
                     return false;
                 }
-                Intent i = ((CordovaActivity)this.cordova.getActivity()).getIntent();
+				Intent i;
+				if(currentIntent == null) {
+					i = ((CordovaActivity)this.cordova.getActivity()).getIntent();
+				} else {
+					i = currentIntent;
+				}
                 String extraName = args.getString(0);
                 if (i.hasExtra(extraName)) {
                     //return new PluginResult(PluginResult.Status.OK, i.getStringExtra(extraName));
@@ -167,7 +173,9 @@ public class WebIntent extends CordovaPlugin {
     public void onNewIntent(Intent intent) {
     	 
         if (this.onNewIntentCallbackContext != null) {
+			currentIntent = intent;
         	PluginResult result = new PluginResult(PluginResult.Status.OK, intent.getDataString());
+			//PluginResult result = new PluginResult(PluginResult.Status.OK, intent.getStringExtra(Intent.EXTRA_TEXT));
         	result.setKeepCallback(true);
             this.onNewIntentCallbackContext.sendPluginResult(result);
         }
